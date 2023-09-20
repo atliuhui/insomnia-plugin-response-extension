@@ -1,0 +1,15 @@
+{
+  "name": "insomnia-plugin-response-extension",
+  "version": "3.6.0",
+  "private": true,
+  "insomnia": {
+    "name": "response-extension",
+    "description": ""
+  },
+  "main": "main.js",
+  "dependencies": {
+    "insomnia-plugin-response": "3.6.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4"
+  }
+}
