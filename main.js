@@ -13,27 +13,48 @@ module.exports.templateTags = [{
         {
             displayName: 'Expression',
             type: 'string',
-            description: 'standard for expressions "{func}:arg1,arg2..." => "func(input,arg1,arg2...)"'
+            description: 'standard for expressions "func:arg1,arg2..." => "func(input,arg1,arg2...)"'
         }
     ]),
     async run(context, field, id, filter, resendBehavior, maxAgeSeconds, expression) {
         let input = await insomnia_plugin_response.run(context, field, id, filter, resendBehavior, maxAgeSeconds);
         console.debug(input, expression);
 
-        if (!expression) {
-            return input;
-        }
+        let config = parse(expression);
+        console.debug(config);
 
-        let index = expression.indexOf(':');
-        let func = expression.substring(0, index);
-        let args = _.map(expression.substring(index + 1, expression.length).split(','), (item) => _.trim(item));
-        console.debug(func, args);
-
-        switch (func.toLowerCase()) {
+        switch (_.lowerCase(config.func)) {
             case "moment":
-                return moment(input).format(_.first(args));
+                return moment(input).format(config.args.at(0));
+            case "replace":
+                return _.replace(input, config.args.at(0), config.args.at(1));
+            case "trimstart":
+                return _.trimStart(input, config.args.at(0));
+            case "trimend":
+                return _.trimEnd(input, config.args.at(0));
             default:
                 return _.trim(input);
         }
     }
 }];
+
+function parse(filter) {
+    let config = {
+        func: null,
+        args: []
+    };
+
+    if (!filter) {
+        return config;
+    }
+
+    let func = _.first(_.split(filter, ':'));
+    let args = _.trim(_.trimStart(_.replace(filter, func, ''), ':'));
+
+    config.func = _.trim(func);
+    if (args.length > 0) {
+        config.args = _.map(_.split(args, ','), (item) => _.trim(item));
+    }
+
+    return config;
+}
