@@ -23,14 +23,18 @@ module.exports.templateTags = [{
         let config = parse(expression);
         console.debug(config);
 
-        switch (_.lowerCase(config.func)) {
+        switch (config.func) {
             case "moment":
                 return moment(input).format(config.args.at(0));
             case "replace":
                 return _.replace(input, config.args.at(0), config.args.at(1));
-            case "trimstart":
+            case "replaceG":
+                return _.replace(input, new RegExp(config.args.at(0), 'g'), config.args.at(1));
+            case "replaceGI":
+                return _.replace(input, new RegExp(config.args.at(0), 'gi'), config.args.at(1));
+            case "trimStart":
                 return _.trimStart(input, config.args.at(0));
-            case "trimend":
+            case "trimEnd":
                 return _.trimEnd(input, config.args.at(0));
             default:
                 return _.trim(input);
